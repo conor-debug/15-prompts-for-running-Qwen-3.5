@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15 Qwen 3.5 Business Prompts — @conorgrowth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080d18;
+    --surface: #0f1525;
+    --surface2: #111a2e;
+    --border: #1a2240;
+    --border-bright: #1e3a5f;
+    --teal: #00d4b4;
+    --teal-dim: rgba(0,212,180,0.08);
+    --cyan: #00c9ff;
+    --text: #cbd5e1;
+    --muted: #4a6080;
+    --white: #e2eeff;
+    --red: #ff4d6d;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle scanlines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Radial glow top */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(0,212,180,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { max-width: 700px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* ——— TOPBAR ——— */
+  .topbar { border-bottom: 1px solid var(--border); padding: 14px 0; }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; }
+
+  .bc-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--teal);
+    position: relative;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(0,212,180,0.4);
+  }
+  .logo-mark::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    border: 2px solid rgba(8,13,24,0.7);
+  }
+
+  .logo-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .topbar-linkedin {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .topbar-linkedin:hover { color: var(--teal); }
+
+  /* ——— GATE VIEW ——— */
+  #gate-view { padding: 64px 0 72px; animation: fadeUp 0.7s ease both; }
+
+  .breaking-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,77,109,0.1);
+    border: 1px solid rgba(255,77,109,0.25);
+    padding: 5px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--red); margin-bottom: 32px;
+  }
+  .breaking-pill::before {
+    content: ''; display: block; width: 6px; height: 6px;
+    background: var(--red); border-radius: 50%;
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(54px, 10vw, 88px);
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+  h1 em { color: var(--teal); font-style: normal; }
+  h1 .small { font-size: 0.55em; display: block; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+
+  .gate-sub {
+    font-size: 16px; color: #6a8aaa; line-height: 1.7;
+    margin-bottom: 40px; max-width: 560px;
+  }
+  .gate-sub strong { color: var(--text); font-weight: 500; }
+
+  /* Stats strip */
+  .stats-strip {
+    display: flex; gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 44px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .stat { flex: 1; padding: 16px 20px; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-n { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: var(--teal); display: block; line-height: 1; margin-bottom: 3px; }
+  .stat-l { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* What it can do */
+  .capabilities {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 40px;
+    animation: fadeUp 0.7s 0.15s ease both;
+  }
+  .cap-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--teal); margin-bottom: 16px; }
+  .cap-label::before { content: '// '; opacity: 0.4; }
+  .cap-list { display: flex; flex-direction: column; gap: 10px; }
+  .cap-item { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: var(--text); line-height: 1.5; }
+  .cap-arrow { color: var(--teal); font-family: 'IBM Plex Mono', monospace; font-size: 12px; flex-shrink: 0; padding-top: 1px; }
+
+  /* Gate box */
+  .gate-box {
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+  .gate-box::before {
+    content: '';
+    position: absolute; bottom: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,180,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .gate-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; }
+  .gate-eyebrow::before { content: '// '; opacity: 0.4; }
+
+  h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(30px, 5vw, 44px); color: var(--white); letter-spacing: 0.01em; margin-bottom: 10px; line-height: 1; }
+
+  .gate-desc { font-size: 14px; color: #567090; line-height: 1.65; margin-bottom: 28px; max-width: 480px; }
+
+  /* Locked preview */
+  .locked-preview { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 18px 20px; margin-bottom: 28px; }
+  .lp-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+  .lp-items { display: flex; flex-direction: column; gap: 7px; }
+  .lp-item { display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+  .lp-item::before { content: ''; display: block; width: 12px; height: 1px; background: var(--teal); opacity: 0.3; flex-shrink: 0; }
+  .lp-item.blur { filter: blur(4px); opacity: 0.2; user-select: none; pointer-events: none; }
+  .lp-lock { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--teal); letter-spacing: 0.1em; text-align: center; margin-top: 12px; opacity: 0.6; }
+
+  /* Form */
+  .gate-form { display: flex; flex-direction: column; gap: 10px; }
+  .gate-form input[type="email"] {
+    background: #060b14; border: 1px solid var(--border-bright); color: var(--white);
+    font-family: 'IBM Plex Mono', monospace; font-size: 14px; padding: 15px 18px;
+    outline: none; width: 100%; transition: border-color 0.2s;
+  }
+  .gate-form input[type="email"]::placeholder { color: var(--muted); }
+  .gate-form input[type="email"]:focus { border-color: var(--teal); }
+
+  .submit-btn {
+    background: var(--teal); color: #080d18; border: none;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; padding: 15px 24px;
+    cursor: pointer; transition: background 0.15s, box-shadow 0.15s; width: 100%;
+  }
+  .submit-btn:hover { background: #00eeca; box-shadow: 0 0 20px rgba(0,212,180,0.25); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+  .form-note { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.05em; text-align: center; }
+  .form-error { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--red); display: none; }
+
+  /* ——— LIST VIEW ——— */
+  #list-view { display: none; padding: 60px 0 80px; }
+  #list-view.visible { display: block; animation: fadeUp 0.6s ease both; }
+
+  .list-header { margin-bottom: 36px; }
+  .list-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+  .list-eyebrow::before { content: '// '; opacity: 0.4; }
+  .list-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(38px, 6vw, 58px); color: var(--white); letter-spacing: 0.01em; line-height: 1; margin-bottom: 10px; }
+  .list-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* Category label */
+  .cat-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal);
+    padding: 20px 0 12px; border-top: 1px solid var(--border); margin-top: 24px;
+    opacity: 0.7;
+  }
+  .cat-label:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+
+  /* Prompt cards */
+  .prompts { display: flex; flex-direction: column; gap: 2px; }
+  .pcard {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 20px 22px; display: grid; grid-template-columns: 36px 1fr;
+    gap: 16px; align-items: start;
+    transition: border-color 0.2s, background 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .pcard:hover { border-color: var(--border-bright); background: #111c30; }
+  .pcard-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 700; color: var(--teal); padding-top: 2px; }
+  .pcard-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 6px; letter-spacing: -0.01em; }
+  .pcard-prompt {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #3a6080;
+    line-height: 1.55; background: rgba(0,0,0,0.25); border-left: 2px solid rgba(0,212,180,0.2);
+    padding: 10px 12px; margin-bottom: 6px;
+  }
+  .pcard-use { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* Footer */
+  .footer { border-top: 1px solid var(--border); padding: 22px 0; position: relative; z-index: 1; }
+  .footer-inner { display: flex; align-items: center; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); }
+  .footer-link { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .footer-link:hover { color: var(--teal); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  @media (max-width: 480px) {
+    .stats-strip { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+    .gate-box { padding: 24px 18px; }
+    .pcard { grid-template-columns: 28px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="https://linkedin.com/in/conorgrowth" target="_blank" class="topbar-linkedin" style="color: var(--teal); font-weight:700; letter-spacing:0.12em;">@conorgrowth</a>
+    <a href="https://linkedin.com/in/conorgrowth" target="_blank" class="topbar-linkedin">linkedin.com/in/conorgrowth</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- GATE VIEW -->
+  <div id="gate-view">
+    <div class="breaking-pill">Breaking — Vision AI</div>
+
+    <h1>
+      <span class="small">Qwen 3.5-9B</span>
+      Free.<br><em>Local.</em><br>Enterprise-Grade.
+    </h1>
+
+    <p class="gate-sub">
+      A 9B model that reads images, PDFs, invoices, and charts landed with
+      <strong>500,000+ downloads in days</strong> and runs on a single GPU.
+      Every team paying for document processing software just lost its pricing power.
+    </p>
+
+    <div class="stats-strip">
+      <div class="stat">
+        <span class="stat-n">9B</span>
+        <span class="stat-l">Parameters</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">500K+</span>
+        <span class="stat-l">Downloads in days</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">$0</span>
+        <span class="stat-l">Per token cost</span>
+      </div>
+      <div class="stat">
+        <span class="stat-n">1 GPU</span>
+        <span class="stat-l">To run locally</span>
+      </div>
+    </div>
+
+    <div class="capabilities">
+      <div class="cap-label">What it does right now</div>
+      <div class="cap-list">
+        <div class="cap-item"><span class="cap-arrow">&rarr;</span> Read and summarise PDFs, invoices, and contracts from screenshots</div>
+        <div class="cap-item"><span class="cap-arrow">&rarr;</span> Analyse product images and write descriptions automatically</div>
+        <div class="cap-item"><span class="cap-arrow">&rarr;</span> Extract data from charts, dashboards, and spreadsheets</div>
+        <div class="cap-item"><span class="cap-arrow">&rarr;</span> Answer questions about photos, diagrams, and documents</div>
+        <div class="cap-item"><span class="cap-arrow">&rarr;</span> Run 24/7 with zero per-token cost on hardware you already own</div>
+      </div>
+    </div>
+
+    <!-- GATE BOX -->
+    <div class="gate-box">
+      <div class="gate-eyebrow">Exclusive Resource</div>
+      <h2>15 Ready-to-Use<br>Business Prompts</h2>
+      <p class="gate-desc">
+        15 copy-paste prompts for running Qwen 3.5 on business documents, images,
+        and visual data extraction. Organised by use case. Ready to deploy today.
+      </p>
+
+      <div class="locked-preview">
+        <div class="lp-label">// Preview</div>
+        <div class="lp-items">
+          <div class="lp-item">01 &mdash; Invoice data extraction prompt</div>
+          <div class="lp-item">02 &mdash; Contract clause identification prompt</div>
+          <div class="lp-item blur">03 &mdash; XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</div>
+          <div class="lp-item blur">04 &mdash; XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</div>
+          <div class="lp-item blur">05 through 15 &mdash; XXXXXXXXXXXXXXXXXX</div>
+        </div>
+        <div class="lp-lock">[ 13 prompts locked &mdash; enter email to reveal ]</div>
+      </div>
+
+      <div id="form-wrap">
+        <div class="gate-form">
+          <input type="email" id="email-input" placeholder="your@email.com" autocomplete="email" />
+          <span class="form-error" id="form-error">Please enter a valid email address.</span>
+          <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Reveal All 15 Prompts &rarr;</button>
+          <p class="form-note">No spam. One resource. Unsubscribe any time.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div id="list-view">
+    <div class="list-header">
+      <div class="list-eyebrow">Full Resource — Unlocked</div>
+      <div class="list-title">15 Qwen 3.5<br>Business Prompts</div>
+      <p class="list-sub">Copy, paste, and run. Organised by business function.</p>
+    </div>
+
+    <div class="prompts">
+
+      <div class="cat-label">// Document Processing</div>
+
+      <div class="pcard" style="animation-delay:0.05s">
+        <span class="pcard-num">01</span>
+        <div>
+          <div class="pcard-title">Invoice Data Extraction</div>
+          <div class="pcard-prompt">"Extract all fields from this invoice image: vendor name, invoice number, date, line items with quantities and unit prices, subtotal, tax, and total. Return as structured JSON."</div>
+          <div class="pcard-use">Use for: Automating accounts payable, removing manual data entry from finance teams.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.09s">
+        <span class="pcard-num">02</span>
+        <div>
+          <div class="pcard-title">Contract Clause Identification</div>
+          <div class="pcard-prompt">"Review this contract image and identify: payment terms, termination clauses, liability caps, renewal conditions, and any non-standard clauses that require legal review. Flag anything unusual."</div>
+          <div class="pcard-use">Use for: Pre-screening contracts before they reach legal counsel, saving review time.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.13s">
+        <span class="pcard-num">03</span>
+        <div>
+          <div class="pcard-title">Receipt Categorisation</div>
+          <div class="pcard-prompt">"Analyse this receipt image. Extract: merchant name, date, total amount, payment method, and categorise the expense type (travel, meals, equipment, software, other). Flag if over $100."</div>
+          <div class="pcard-use">Use for: Automating expense report processing and policy compliance checks.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.17s">
+        <span class="pcard-num">04</span>
+        <div>
+          <div class="pcard-title">Multi-Document Comparison</div>
+          <div class="pcard-prompt">"Compare these two document images side by side. List every difference in terms, values, dates, and conditions. Highlight any changes that could have financial or legal impact."</div>
+          <div class="pcard-use">Use for: Contract redlining, proposal version control, policy change tracking.</div>
+        </div>
+      </div>
+
+      <div class="cat-label">// Data Extraction from Visuals</div>
+
+      <div class="pcard" style="animation-delay:0.21s">
+        <span class="pcard-num">05</span>
+        <div>
+          <div class="pcard-title">Dashboard Screenshot to Data</div>
+          <div class="pcard-prompt">"Read this dashboard screenshot and extract all visible metrics, their values, time periods, and trends. Return as a structured table I can paste into a spreadsheet."</div>
+          <div class="pcard-use">Use for: Pulling data from tools that have no API export, or when you only have a screenshot.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.25s">
+        <span class="pcard-num">06</span>
+        <div>
+          <div class="pcard-title">Chart Data Recovery</div>
+          <div class="pcard-prompt">"Analyse this chart image and reconstruct the underlying data. Estimate the values for each data point, label the axes, identify the trend, and summarise the key insight in one sentence."</div>
+          <div class="pcard-use">Use for: Recovering data from old reports, competitor screenshots, or presentations without source files.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.29s">
+        <span class="pcard-num">07</span>
+        <div>
+          <div class="pcard-title">Handwritten Notes Transcription</div>
+          <div class="pcard-prompt">"Transcribe all text from this handwritten notes image. Preserve the structure including headings, bullet points, and action items. Flag any words that are unclear with [unclear]."</div>
+          <div class="pcard-use">Use for: Digitising meeting notes, whiteboard sessions, field notes, and sketched wireframes.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.33s">
+        <span class="pcard-num">08</span>
+        <div>
+          <div class="pcard-title">Spreadsheet Screenshot Parser</div>
+          <div class="pcard-prompt">"Convert this spreadsheet screenshot into a CSV-formatted text output. Preserve all column headers, row labels, and cell values. Note any merged cells or formatting that carries meaning."</div>
+          <div class="pcard-use">Use for: Extracting data from emailed spreadsheet screenshots or locked PDF tables.</div>
+        </div>
+      </div>
+
+      <div class="cat-label">// Product and Commerce</div>
+
+      <div class="pcard" style="animation-delay:0.37s">
+        <span class="pcard-num">09</span>
+        <div>
+          <div class="pcard-title">Product Image Description</div>
+          <div class="pcard-prompt">"Write a product description for this image. Include: product name (inferred), key visible features, materials, target use case, and a 2-sentence marketing copy suitable for an e-commerce listing."</div>
+          <div class="pcard-use">Use for: Scaling product catalogue content without a copywriter for each SKU.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.41s">
+        <span class="pcard-num">10</span>
+        <div>
+          <div class="pcard-title">Competitor Product Analysis</div>
+          <div class="pcard-prompt">"Analyse this competitor product image. Identify visible features, quality indicators, likely price positioning, and what customer pain point it addresses. Suggest one gap our product could exploit."</div>
+          <div class="pcard-use">Use for: Rapid competitive intelligence from screenshots, ads, or product pages.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.45s">
+        <span class="pcard-num">11</span>
+        <div>
+          <div class="pcard-title">Packaging Compliance Check</div>
+          <div class="pcard-prompt">"Review this product packaging image. Check for: required regulatory labels, ingredient or material disclosures, safety warnings, contact information, and barcode visibility. List anything missing or unclear."</div>
+          <div class="pcard-use">Use for: Pre-production compliance screening without manually reading every label.</div>
+        </div>
+      </div>
+
+      <div class="cat-label">// Operations and Reporting</div>
+
+      <div class="pcard" style="animation-delay:0.49s">
+        <span class="pcard-num">12</span>
+        <div>
+          <div class="pcard-title">Site or Facility Inspection</div>
+          <div class="pcard-prompt">"Analyse this site photo. Identify any visible safety hazards, maintenance issues, or compliance concerns. Rate severity (low/medium/high) and suggest immediate action for anything rated medium or above."</div>
+          <div class="pcard-use">Use for: Remote inspection workflows, insurance documentation, and maintenance prioritisation.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.53s">
+        <span class="pcard-num">13</span>
+        <div>
+          <div class="pcard-title">Report Summary from Screenshot</div>
+          <div class="pcard-prompt">"Summarise this report page image in 5 bullet points for an executive audience. Focus on the key finding, the metric that changed most, the recommended action, and any risk flagged. Keep each bullet under 20 words."</div>
+          <div class="pcard-use">Use for: Preparing board packs and leadership briefings from dense internal reports.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.57s">
+        <span class="pcard-num">14</span>
+        <div>
+          <div class="pcard-title">Email or Letter Triage</div>
+          <div class="pcard-prompt">"Read this scanned letter or email screenshot. Identify: sender, date, subject, urgency level (low/medium/high/urgent), required action, and deadline if mentioned. Suggest a one-sentence reply."</div>
+          <div class="pcard-use">Use for: High-volume correspondence triage, customer service routing, and legal mail processing.</div>
+        </div>
+      </div>
+
+      <div class="pcard" style="animation-delay:0.61s">
+        <span class="pcard-num">15</span>
+        <div>
+          <div class="pcard-title">Visual Report Generation</div>
+          <div class="pcard-prompt">"Look at these three images showing our operations this week. Write a 200-word operational summary covering: what went well, what needs attention, one metric improvement, and a single recommended priority for next week."</div>
+          <div class="pcard-use">Use for: Automating weekly ops reports from photo evidence, removing the need for manual write-ups.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="wrap footer-inner">
+    <span>&copy; 2025 @conorgrowth</span>
+    <a href="https://linkedin.com/in/conorgrowth" target="_blank" class="footer-link">linkedin.com/in/conorgrowth</a>
+  </div>
+</div>
+
+<script>
+  const WEBHOOK_URL = 'https://n8n.blockcircle.com/webhook/qwen-prompts-leadmagnet';
+
+  async function handleSubmit() {
+    const emailInput = document.getElementById('email-input');
+    const submitBtn  = document.getElementById('submit-btn');
+    const errorEl    = document.getElementById('form-error');
+
+    const email = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      errorEl.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+
+    errorEl.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Unlocking...';
+
+    // Fire and forget so CORS never blocks the reveal
+    try {
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          source: 'qwen-prompts-leadmagnet',
+          timestamp: new Date().toISOString()
+        })
+      }).catch(() => {});
+    } catch(e) {}
+
+    setTimeout(() => {
+      document.getElementById('gate-view').style.display = 'none';
+      const listView = document.getElementById('list-view');
+      listView.classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 600);
+  }
+
+  document.getElementById('email-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleSubmit();
+  });
+</script>
+
+</body>
+</html>
